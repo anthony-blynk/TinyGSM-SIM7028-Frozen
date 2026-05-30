@@ -29,7 +29,7 @@
 #include "TinyGsmModem.tpp"
 #include "TinyGsmTCP.tpp"
 #include "TinyGsmTime.tpp"
-//#define MODE_NB_IOT      //Comment this macro definition when using CAT mode
+#define MODE_NB_IOT      //Comment this macro definition when using CAT mode
 #ifdef MODE_NB_IOT
     #include "TinyGsmNBIOT.tpp"
 #else
@@ -256,17 +256,20 @@ class TinyGsmSim7028 :  public TinyGsmModem<TinyGsmSim7028>,
      * Generic network functions
      */
   public:
-    RegStatus getRegistrationStatus() { 
-        #ifdef MODE_NB_IOT
-            sendAT(GF("+CIPCCFG=10,0,0,0,1,0,25000"));
-            waitResponse();
-            sendAT(GF("+NETOPEN"));
-            waitResponse();
-        #else
+RegStatus getRegistrationStatus() { 
+    #ifdef MODE_NB_IOT
+        sendAT(GF("+CIPCCFG=10,0,0,0,1,0,25000"));
+        waitResponse();
+        sendAT(GF("+NETOPEN"));
+        waitResponse();
         
-        #endif   
+        // Dynamic Switch: If we are in NB-IoT mode, check CEREG
+        return (RegStatus)getRegistrationStatusXREG("CEREG"); 
+    #else
+        // Fallback: If we are in standard GPRS/2G/3G mode, check CREG
         return (RegStatus)getRegistrationStatusXREG("CREG"); 
-    }
+    #endif   
+}
 
   protected:
     bool isNetworkConnectedImpl()
