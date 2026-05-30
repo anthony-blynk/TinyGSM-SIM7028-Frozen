@@ -681,7 +681,7 @@ RegStatus getRegistrationStatus() {
     finish:
         if (!index) {
             data.trim();
-            if (data.length()) {
+            if (data.length() && data != "0") {
                 DBG("### Unhandled:", data);
             }
             data = "";
